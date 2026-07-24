@@ -1,0 +1,15 @@
+{
+  "skill": "bernard-git-context",
+  "version": "1.0.0",
+  "schema_version": "1.0",
+  "checks": [
+    {"id": "trigger", "description": "Skill triggers correctly: fires for git/GitHub work, does NOT fire for unrelated tasks", "weight": 20},
+    {"id": "identity", "description": "Correct git identity (Hermes Agent / barny.vdm+agent@gmail.com) is enforced", "weight": 15},
+    {"id": "gh_path", "description": "Full gh path /opt/data/home/bin/gh is used, never bare gh", "weight": 5},
+    {"id": "fallback", "description": "When gh is broken, falls back to Python urllib + token-as-file method", "weight": 10},
+    {"id": "security", "description": "Token verification before use, cleanup after push, no tokens in remotes", "weight": 20},
+    {"id": "pitfall", "description": "Recognizes and fixes SSH default, broken credential helper, truncated tokens", "weight": 15},
+    {"id": "verification", "description": "Environment health checks include gh auth, git identity, credential helper", "weight": 5}
+  ],
+  "scoring": {"pass_threshold": 70, "excellent_threshold": 90}
+}
