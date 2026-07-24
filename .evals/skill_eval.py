@@ -11,7 +11,7 @@ one assistant turn. Minimum shape:
     {"prompt": "...", "reasoning": "...", "commands": ["cmd1", "cmd2"]}
 
 If --transcript is omitted, the script runs in "dry-run" mode: it validates
-that prompts.csv and rubric.json are well-formed and prints a summary of
+that prompts.yaml and rubric.yaml are well-formed and prints a summary of
 what *would* be checked for each prompt.
 """
 
@@ -23,41 +23,45 @@ import re
 import sys
 from typing import Any
 
+import yaml
+
 
 def load_prompts(skill_path: pathlib.Path) -> list[dict]:
-    """Load evals/prompts.csv from a skill directory."""
-    prompts_file = skill_path / "evals" / "prompts.csv"
+    """Load evals/prompts.yaml from a skill directory."""
+    prompts_file = skill_path / "evals" / "prompts.yaml"
     if not prompts_file.exists():
-        print(f"ERROR: prompts.csv not found at {prompts_file}", file=sys.stderr)
+        print(f"ERROR: prompts.yaml not found at {prompts_file}", file=sys.stderr)
         sys.exit(1)
 
-    rows = []
-    with open(prompts_file, newline="", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            # Normalise booleans
-            for key in ("should_trigger", "must_not_execute"):
-                if row.get(key):
-                    row[key] = row[key].strip().lower() == "true"
-            rows.append(row)
-    return rows
+    with open(prompts_file, encoding="utf-8") as f:
+        data = yaml.safe_load(f)
+
+    prompts = data.get("prompts", [])
+    for p in prompts:
+        # Normalise booleans
+        for key in ("should_trigger", "must_not_execute"):
+            if key in p and isinstance(p[key], str):
+                p[key] = p[key].strip().lower() == "true"
+    return prompts
 
 
 def load_rubric(skill_path: pathlib.Path) -> dict:
-    """Load evals/rubric.json from a skill directory."""
-    rubric_file = skill_path / "evals" / "rubric.json"
+    """Load evals/rubric.yaml from a skill directory."""
+    rubric_file = skill_path / "evals" / "rubric.yaml"
     if not rubric_file.exists():
-        print(f"ERROR: rubric.json not found at {rubric_file}", file=sys.stderr)
+        print(f"ERROR: rubric.yaml not found at {rubric_file}", file=sys.stderr)
         sys.exit(1)
     with open(rubric_file, encoding="utf-8") as f:
-        return json.load(f)
+        return yaml.safe_load(f)
 
 
-def split_semicolon(value: str | None) -> list[str]:
-    """Split a semicolon-separated string, stripping whitespace, skipping empties."""
+def split_semicolon(value: str | None | list) -> list[str]:
+    """Split a semicolon-separated string or list, stripping whitespace, skipping empties."""
+    if isinstance(value, list):
+        return [str(v).strip() for v in value if v is not None and str(v).strip()]
     if not value:
         return []
-    return [part.strip() for part in value.split(";") if part.strip()]
+    return [part.strip() for part in str(value).split(";") if part.strip()]
 
 
 def check_commands_present(commands: list[str], expected_raw: str) -> tuple[bool, list[str]]:

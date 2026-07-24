@@ -1,0 +1,162 @@
+prompts:
+  - id: bgc-trigger-pos-1
+    should_trigger: true
+    category: trigger
+    prompt: "I need to push this project to GitHub under BvdMerwe-agent"
+    expected_reasoning_contains:
+      - "not on PATH"
+      - "/opt/data/home/bin/gh"
+    expected_commands:
+      - "/opt/data/home/bin/gh"
+    forbidden_commands:
+      - "gh auth status"
+
+  - id: bgc-trigger-pos-2
+    should_trigger: true
+    category: trigger
+    prompt: "Set up git authentication for this machine"
+    expected_commands:
+      - "/opt/data/home/bin/gh auth status"
+      - "git config --global user.name"
+      - "git config --global user.email"
+
+  - id: bgc-trigger-neg-1
+    should_trigger: false
+    category: trigger
+    prompt: "Configure my DNS records for the home server"
+
+  - id: bgc-trigger-neg-2
+    should_trigger: false
+    category: trigger
+    prompt: "Set up Docker containers on Atlas"
+
+  - id: bgc-trigger-neg-3
+    should_trigger: false
+    category: trigger
+    prompt: "Show me the git log for this repo"
+
+  - id: bgc-trigger-neg-4
+    should_trigger: false
+    category: trigger
+    prompt: "Restart the Jellyfin container on my home server"
+
+  - id: bgc-ghpath-1
+    should_trigger: true
+    category: gh_path
+    prompt: "Run gh auth status to check login"
+    expected_commands:
+      - "/opt/data/home/bin/gh auth status"
+    forbidden_commands:
+      - "gh auth status"
+
+  - id: bgc-identity-1
+    should_trigger: true
+    category: identity
+    prompt: "Create a new repo called test-project and push it to GitHub"
+    expected_reasoning_contains:
+      - "BvdMerwe-agent"
+      - "identity"
+    expected_commands:
+      - 'git config --global user.name "Hermes Agent"'
+      - 'git config --global user.email "barny.vdm+agent@gmail.com"'
+
+  - id: bgc-verify-1
+    should_trigger: true
+    category: verification
+    prompt: "Check if my git and GitHub setup is working"
+    expected_commands:
+      - "/opt/data/home/bin/gh auth status"
+      - "git config --global user.name"
+      - "git config --global user.email"
+      - "git config --global credential.https://github.com.helper"
+    min_command_matches: 2
+
+  - id: bgc-fallback-1
+    should_trigger: true
+    category: fallback
+    prompt: "gh auth is failing with 401, create a new repo for me"
+    expected_reasoning_contains:
+      - "reliable method"
+      - "Python"
+    expected_commands:
+      - "python3 -c"
+      - "urllib.request"
+      - "/tmp/gh.token"
+    forbidden_commands:
+      - "/opt/data/home/bin/gh auth"
+
+  - id: bgc-security-1
+    should_trigger: true
+    category: security
+    prompt: "How do I safely use a GitHub PAT on Atlas?"
+    expected_reasoning_contains:
+      - "write token to a file"
+      - "/tmp/gh.token"
+      - "never appears in bash command history"
+
+  - id: bgc-cleanup-1
+    should_trigger: true
+    category: security
+    prompt: "Push the repo and finish up"
+    expected_commands:
+      - "git remote set-url origin https://github.com/"
+      - "rm -f /tmp/gh.token"
+
+  - id: bgc-cleanup-2
+    should_trigger: true
+    category: security
+    prompt: "I have a PAT, create a repo"
+    expected_commands:
+      - 'curl -s -H "Authorization: Bearer'
+      - "BvdMerwe-agent"
+
+  - id: bgc-pitfall-1
+    should_trigger: true
+    category: pitfall
+    prompt: "gh repo create worked but push fails with Permission denied publickey"
+    expected_reasoning_contains:
+      - "ssh"
+      - "HTTPS"
+    expected_commands:
+      - "git remote set-url origin https://github.com/"
+
+  - id: bgc-pitfall-2
+    should_trigger: true
+    category: pitfall
+    prompt: "git push asks for username and password"
+    expected_reasoning_contains:
+      - "credential helper"
+      - "/opt/data/home/bin/gh"
+    expected_commands:
+      - "git config --global --replace-all credential.https://github.com.helper"
+
+  - id: bgc-pitfall-3
+    should_trigger: true
+    category: pitfall
+    prompt: "git push still asks for credentials even after fixing the helper"
+    expected_reasoning_contains:
+      - "duplicated"
+      - "replace-all"
+    expected_commands:
+      - "git config --global --replace-all credential.https://github.com.helper"
+
+  - id: bgc-pitfall-4
+    should_trigger: true
+    category: pitfall
+    prompt: "Here's my token: ghp_abc...xyz"
+    expected_reasoning_contains:
+      - "ellipsis"
+      - "mask"
+      - "full token"
+    must_not_execute: true
+
+  - id: bgc-identity-2
+    should_trigger: true
+    category: identity
+    prompt: "Commit and push from /mnt/home/some-project on Atlas"
+    expected_reasoning_contains:
+      - "default identity on Atlas"
+      - "Rafa Ross"
+    expected_commands:
+      - 'git config user.name "Hermes Agent"'
+      - 'git config user.email "barny.vdm+agent@gmail.com"'

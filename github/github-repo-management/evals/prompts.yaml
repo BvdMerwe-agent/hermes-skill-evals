@@ -1,0 +1,273 @@
+prompts:
+  - id: grm-trigger-pos-1
+    should_trigger: true
+    category: trigger
+    prompt: "Clone the repo BvdMerwe-agent/vdM-menu-tracker"
+
+  - id: grm-trigger-pos-2
+    should_trigger: true
+    category: trigger
+    prompt: "Create a new GitHub repository for my project"
+
+  - id: grm-trigger-pos-3
+    should_trigger: true
+    category: trigger
+    prompt: "Show me my GitHub repos"
+
+  - id: grm-trigger-neg-1
+    should_trigger: false
+    category: trigger
+    prompt: "Configure my DNS records for the home server"
+
+  - id: grm-trigger-neg-2
+    should_trigger: false
+    category: trigger
+    prompt: "Set up Docker containers on Atlas"
+
+  - id: grm-trigger-neg-3
+    should_trigger: false
+    category: trigger
+    prompt: "Restart the Jellyfin container on my home server"
+
+  - id: grm-clone-1
+    should_trigger: true
+    category: clone
+    prompt: "Clone the repo BvdMerwe-agent/vdM-menu-tracker"
+    expected_commands:
+      - "git clone https://github.com/BvdMerwe-agent/vdM-menu-tracker.git"
+    alt_commands:
+      - "gh repo clone BvdMerwe-agent/vdM-menu-tracker"
+
+  - id: grm-clone-2
+    should_trigger: true
+    category: clone
+    prompt: "Clone a large repo quickly without full history"
+    expected_commands:
+      - "--depth 1"
+
+  - id: grm-clone-3
+    should_trigger: true
+    category: clone
+    prompt: "Clone only the develop branch of owner/repo"
+    expected_commands:
+      - "--branch develop"
+
+  - id: grm-create-1
+    should_trigger: true
+    category: create
+    prompt: "Create a new public repo called my-project"
+    expected_commands:
+      - "gh repo create my-project --public"
+    alt_commands:
+      - "curl -s -X POST"
+      - '"name": "my-project"'
+
+  - id: grm-create-2
+    should_trigger: true
+    category: create
+    prompt: "Create a private repo called tool with MIT license"
+    expected_commands:
+      - "gh repo create tool --private --license MIT"
+      - '"license_template": "mit"'
+      - '"private": true'
+    min_command_matches: 1
+
+  - id: grm-create-3
+    should_trigger: true
+    category: create
+    prompt: "Turn /path/to/project into a GitHub repo and push it"
+    expected_commands:
+      - "gh repo create my-project --source . --push"
+    alt_commands:
+      - "git init"
+      - "git add ."
+      - "git commit"
+      - "git remote add origin"
+      - "git push -u origin"
+
+  - id: grm-create-4
+    should_trigger: true
+    category: create
+    prompt: "Create a repo under my-org organization"
+    expected_commands:
+      - "my-org/"
+      - "orgs/my-org/repos"
+
+  - id: grm-create-5
+    should_trigger: true
+    category: create
+    prompt: "Create a new app from the template owner/template-repo"
+    expected_commands:
+      - "gh repo create my-new-app --template owner/template-repo"
+      - "/repos/owner/template-repo/generate"
+    min_command_matches: 1
+
+  - id: grm-fork-1
+    should_trigger: true
+    category: fork
+    prompt: "Fork owner/repo-name to my account"
+    expected_commands:
+      - "git remote add upstream https://github.com/owner/repo-name.git"
+    alt_commands:
+      - "gh repo fork owner/repo-name --clone"
+      - "/repos/owner/repo-name/forks"
+
+  - id: grm-fork-2
+    should_trigger: true
+    category: fork
+    prompt: "Update my fork with changes from the original repo"
+    expected_commands:
+      - "git fetch upstream"
+      - "git merge upstream/main"
+    alt_commands:
+      - "gh repo sync"
+
+  - id: grm-info-1
+    should_trigger: true
+    category: info
+    prompt: "Show me info about owner/repo"
+    expected_commands:
+      - "gh repo view owner/repo"
+      - "/repos/owner/repo"
+    min_command_matches: 1
+
+  - id: grm-info-2
+    should_trigger: true
+    category: info
+    prompt: "List my GitHub repositories"
+    expected_commands:
+      - "gh repo list"
+      - "/user/repos"
+    min_command_matches: 1
+
+  - id: grm-info-3
+    should_trigger: true
+    category: info
+    prompt: "Find popular Python machine learning repos"
+    expected_commands:
+      - "search/repositories"
+      - "language:python"
+      - "sort=stars"
+    alt_commands:
+      - 'gh search repos "machine learning" --language python --sort stars'
+
+  - id: grm-settings-1
+    should_trigger: true
+    category: settings
+    prompt: "Update the description of my repo"
+    expected_commands:
+      - "gh repo edit --description"
+      - "PATCH /repos/owner/repo"
+      - '"description":'
+    min_command_matches: 1
+
+  - id: grm-settings-2
+    should_trigger: true
+    category: settings
+    prompt: "Add topics machine-learning and python to my repo"
+    expected_commands:
+      - "gh repo edit --add-topic"
+      - "mercy-preview"
+      - '"names": ["machine-learning", "python"]'
+
+  - id: grm-branch-1
+    should_trigger: true
+    category: branch
+    prompt: "Require PR reviews and CI checks on main branch"
+    expected_commands:
+      - "/branches/main/protection"
+      - "required_pull_request_reviews"
+      - "required_status_checks"
+
+  - id: grm-secrets-1
+    should_trigger: true
+    category: secrets
+    prompt: "Show me the GitHub Actions secrets for this repo"
+    expected_commands:
+      - "gh secret list"
+      - "/actions/secrets"
+    min_command_matches: 1
+
+  - id: grm-secrets-2
+    should_trigger: true
+    category: secrets
+    prompt: "Add API_KEY as a GitHub secret"
+    expected_commands:
+      - "gh secret set API_KEY"
+
+  - id: grm-release-1
+    should_trigger: true
+    category: release
+    prompt: "Create release v1.0.0 with auto-generated notes"
+    expected_commands:
+      - "gh release create v1.0.0 --generate-notes"
+      - "/releases"
+      - '"tag_name": "v1.0.0"'
+    min_command_matches: 1
+
+  - id: grm-release-2
+    should_trigger: true
+    category: release
+    prompt: "Show all releases for this repo"
+    expected_commands:
+      - "gh release list"
+      - "/releases"
+    min_command_matches: 1
+
+  - id: grm-workflow-1
+    should_trigger: true
+    category: workflow
+    prompt: "Show me the GitHub Actions workflows"
+    expected_commands:
+      - "gh workflow list"
+      - "/actions/workflows"
+    min_command_matches: 1
+
+  - id: grm-workflow-2
+    should_trigger: true
+    category: workflow
+    prompt: "Re-run the failed CI run 12345"
+    expected_commands:
+      - "gh run rerun 12345"
+      - "/actions/runs/12345/rerun"
+    min_command_matches: 1
+
+  - id: grm-workflow-3
+    should_trigger: true
+    category: workflow
+    prompt: "Manually run the deploy workflow on the main branch"
+    expected_commands:
+      - "gh workflow run deploy.yml --ref main"
+      - "/actions/workflows/deploy.yml/dispatches"
+      - '"ref": "main"'
+    min_command_matches: 1
+
+  - id: grm-gist-1
+    should_trigger: true
+    category: gist
+    prompt: "Create a public gist from script.py"
+    expected_commands:
+      - "gh gist create script.py --public"
+      - "/gists"
+      - '"public": true'
+    min_command_matches: 1
+
+  - id: grm-pitfall-1
+    should_trigger: true
+    category: pitfall
+    prompt: "gh repo create --source . --push failed with Permission denied publickey"
+    expected_reasoning_contains:
+      - "ssh"
+      - "HTTPS"
+    expected_commands:
+      - "git remote set-url origin https://github.com/"
+
+  - id: grm-pitfall-2
+    should_trigger: true
+    category: pitfall
+    prompt: "gh auth status shows not logged in"
+    expected_commands:
+      - "gh auth login"
+    alt_commands:
+      - "curl"
+      - "GITHUB_TOKEN"
