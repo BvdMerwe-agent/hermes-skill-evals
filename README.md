@@ -17,8 +17,8 @@ Each skill gets an `evals/` subdirectory:
 skills/<category>/<skill-name>/
 ├── SKILL.md                    # The skill itself
 ├── evals/
-│   ├── prompts.csv             # Test cases
-│   ├── rubric.json             # Weighted scoring categories
+│   ├── prompts.yaml            # Test cases (human-readable YAML)
+│   ├── rubric.yaml             # Weighted scoring categories
 │   └── transcripts/            # Captured runs (optional, created per-test)
 │       └── 2026-07-24-run1.jsonl
 ```
@@ -31,43 +31,68 @@ skills/.evals/
 └── README.md                  # This file
 ```
 
-## prompts.csv
+## prompts.yaml
 
-A CSV with one row per eval prompt. Required columns:
+A YAML file with a `prompts:` list. Each item is one eval case:
 
-| Column | Description |
-|---|---|
-| `id` | Unique identifier (e.g. `bgc-trigger-pos-1`) |
-| `should_trigger` | `true` if skill SHOULD fire, `false` for negative controls |
-| `category` | Rubric category this prompt belongs to |
-| `prompt` | The user prompt text |
-| `expected_commands` | Semicolon-separated command substrings that must appear |
-| `alt_commands` | Semicolon-separated alternatives (also counted as valid) |
-| `forbidden_commands` | Semicolon-separated commands that must NOT appear |
-| `min_command_matches` | Minimum number of expected patterns to match (default: 1) |
-| `expected_reasoning_contains` | Semicolon-separated phrases reasoning must contain |
-| `must_not_execute` | `true` if the skill must produce NO commands at all |
+```yaml
+prompts:
+  - id: bgc-trigger-pos-1
+    should_trigger: true
+    category: trigger
+    prompt: "I need to push this project to GitHub under BvdMerwe-agent"
+    expected_reasoning_contains:
+      - "not on PATH"
+      - "/opt/data/home/bin/gh"
+    expected_commands:
+      - "/opt/data/home/bin/gh"
+    forbidden_commands:
+      - "gh auth status"
+
+  - id: bgc-trigger-neg-1
+    should_trigger: false
+    category: trigger
+    prompt: "Configure my DNS records for the home server"
+```
+
+### Prompt fields
+
+| Field | Type | Description |
+|---|---|---|
+| `id` | string | Unique identifier (e.g. `bgc-trigger-pos-1`) |
+| `should_trigger` | bool | `true` if skill SHOULD fire, `false` for negative controls |
+| `category` | string | Rubric category this prompt belongs to |
+| `prompt` | string | The user prompt text |
+| `expected_commands` | list | Command substrings that must appear |
+| `alt_commands` | list | Alternative commands (also counted as valid) |
+| `forbidden_commands` | list | Commands that must NOT appear as standalone commands |
+| `min_command_matches` | int | Minimum number of expected patterns to match (default: 1) |
+| `expected_reasoning_contains` | list | Phrases reasoning must contain |
+| `must_not_execute` | bool | `true` if the skill must produce NO commands at all |
 
 **Trigger evals** should always include both positive (`should_trigger=true`) and negative (`should_trigger=false`) prompts. Negative controls use prompts that are adjacent but not in scope (e.g. "Configure DNS" for a git skill).
 
-## rubric.json
+## rubric.yaml
 
-```json
-{
-  "skill": "bernard-git-context",
-  "version": "1.0.0",
-  "schema_version": "1.0",
-  "checks": [
-    {"id": "trigger", "description": "...", "weight": 20},
-    {"id": "identity", "description": "...", "weight": 15}
-  ],
-  "scoring": {"pass_threshold": 70, "excellent_threshold": 90}
-}
+```yaml
+skill: bernard-git-context
+version: "1.0.0"
+schema_version: "1.0"
+checks:
+  - id: trigger
+    description: "Skill triggers correctly: fires for git/GitHub work, does NOT fire for unrelated tasks"
+    weight: 20
+  - id: identity
+    description: "Correct git identity is enforced"
+    weight: 15
+scoring:
+  pass_threshold: 70
+  excellent_threshold: 90
 ```
 
-- `id` must match `category` values in `prompts.csv`
+- `id` must match `category` values in `prompts.yaml`
 - `weight` determines relative importance (total can be anything, scores are normalized)
-- Every category in the rubric must have at least one prompt in `prompts.csv`
+- Every category in the rubric must have at least one prompt in `prompts.yaml`
 
 ## Transcript Format
 
@@ -79,7 +104,7 @@ A JSONL file where each line is a captured turn:
 ```
 
 Keys:
-- `prompt` — exact match to prompts.csv `prompt` column
+- `prompt` — exact match to prompts.yaml `prompt` field
 - `reasoning` — the assistant's internal reasoning (for phrase matching)
 - `commands` — list of command strings the assistant executed
 
@@ -154,7 +179,7 @@ Category               Passed    Total     Rate   Weight
 
 4. **Reasoning phrases**
    - Case-insensitive substring match
-   - All semicolon-separated phrases must be present
+   - All listed phrases must be present
 
 5. **Must not execute**
    - Command list must be empty
@@ -178,7 +203,7 @@ overall_score = Σ(category_score × weight) / Σ(weights)
 
 Transcripts are currently captured manually or via automation. To create one:
 
-1. Run each prompt from `prompts.csv` against Hermes with the target skill loaded
+1. Run each prompt from `prompts.yaml` against Hermes with the target skill loaded
 2. Capture the assistant's reasoning and commands
 3. Write one JSON line per prompt to a `.jsonl` file
 
@@ -186,8 +211,8 @@ Future enhancement: automate transcript capture via a wrapper script that iterat
 
 ## Checklist for New Skill Evals
 
-- [ ] `prompts.csv` with positive and negative triggers
-- [ ] `rubric.json` with all categories weighted
+- [ ] `prompts.yaml` with positive and negative triggers
+- [ ] `rubric.yaml` with all categories weighted
 - [ ] Dry-run passes validation
 - [ ] At least one transcript scored
 - [ ] Overall score ≥ 70 (PASS) before considering the skill reliable
