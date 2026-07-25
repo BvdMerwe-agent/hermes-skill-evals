@@ -1,0 +1,28 @@
+skill: weekly-skill-evals
+version: "1.0.0"
+schema_version: "1.0"
+checks:
+  - id: trigger
+    description: "Skill triggers correctly for eval/regression requests, does NOT fire for unrelated tasks"
+    weight: 20
+  - id: discovery
+    description: "Discovers skills with eval definitions by walking the skills tree"
+    weight: 15
+  - id: dry_run
+    description: "Runs dry-run validation when no transcripts are provided"
+    weight: 15
+  - id: scoring
+    description: "Scores transcripts against prompts and rubric correctly"
+    weight: 15
+  - id: reporting
+    description: "Generates clear markdown reports with summaries and per-skill details"
+    weight: 15
+  - id: regression
+    description: "Flags failures, score drops, and validation errors as regressions"
+    weight: 10
+  - id: pitfall
+    description: "Handles missing eval runner, no skills found, malformed files gracefully"
+    weight: 10
+scoring:
+  pass_threshold: 70
+  excellent_threshold: 90

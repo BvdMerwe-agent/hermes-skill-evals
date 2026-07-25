@@ -1,0 +1,157 @@
+prompts:
+  - id: wse-trigger-pos-1
+    should_trigger: true
+    category: trigger
+    prompt: "Run the weekly skill evals"
+    expected_reasoning_contains:
+      - "eval"
+      - "skill"
+
+  - id: wse-trigger-pos-2
+    should_trigger: true
+    category: trigger
+    prompt: "Check if any skills are regressing"
+    expected_reasoning_contains:
+      - "regression"
+      - "skill"
+
+  - id: wse-trigger-pos-3
+    should_trigger: true
+    category: trigger
+    prompt: "Run skill evaluations for bernard-git-context"
+    expected_reasoning_contains:
+      - "skill"
+      - "bernard-git-context"
+
+  - id: wse-trigger-neg-1
+    should_trigger: false
+    category: trigger
+    prompt: "Set up a new Docker container for my home server"
+
+  - id: wse-trigger-neg-2
+    should_trigger: false
+    category: trigger
+    prompt: "Show me the current weather in Haarlem"
+
+  - id: wse-trigger-neg-3
+    should_trigger: false
+    category: trigger
+    prompt: "Restart the Jellyfin service"
+
+  - id: wse-discovery-1
+    should_trigger: true
+    category: discovery
+    prompt: "Run all skill evals"
+    expected_commands:
+      - "discover_skills"
+      - "prompts.yaml"
+      - "rubric.yaml"
+
+  - id: wse-discovery-2
+    should_trigger: true
+    category: discovery
+    prompt: "List all skills that have eval definitions"
+    expected_commands:
+      - "discover_skills"
+    expected_reasoning_contains:
+      - "eval"
+      - "discover"
+
+  - id: wse-dryrun-1
+    should_trigger: true
+    category: dry_run
+    prompt: "Run skill evals without transcripts"
+    expected_reasoning_contains:
+      - "dry-run"
+      - "transcript"
+    expected_commands:
+      - "--dry-run"
+
+  - id: wse-dryrun-2
+    should_trigger: true
+    category: dry_run
+    prompt: "Validate all eval files are well-formed"
+    expected_reasoning_contains:
+      - "validate"
+      - "well-formed"
+    expected_commands:
+      - "skill_eval.py"
+      - "--dry-run"
+
+  - id: wse-scoring-1
+    should_trigger: true
+    category: scoring
+    prompt: "Score bernard-git-context against its transcript"
+    expected_reasoning_contains:
+      - "transcript"
+      - "score"
+    expected_commands:
+      - "skill_eval.py"
+      - "--transcript"
+
+  - id: wse-report-1
+    should_trigger: true
+    category: reporting
+    prompt: "Generate a skill eval report"
+    expected_reasoning_contains:
+      - "report"
+      - "markdown"
+    expected_commands:
+      - "--report"
+
+  - id: wse-report-2
+    should_trigger: true
+    category: reporting
+    prompt: "Show me the eval results for all skills"
+    expected_commands:
+      - "generate_report"
+    expected_reasoning_contains:
+      - "summary"
+
+  - id: wse-regression-1
+    should_trigger: true
+    category: regression
+    prompt: "Which skills failed validation this week?"
+    expected_reasoning_contains:
+      - "failed"
+      - "validation"
+    expected_commands:
+      - "regressions"
+
+  - id: wse-regression-2
+    should_trigger: true
+    category: regression
+    prompt: "Any skills with scores below PASS threshold?"
+    expected_reasoning_contains:
+      - "PASS"
+      - "threshold"
+    expected_commands:
+      - "regressions"
+
+  - id: wse-pitfall-1
+    should_trigger: true
+    category: pitfall
+    prompt: "Run skill evals but the skill_eval.py is missing"
+    expected_reasoning_contains:
+      - "missing"
+      - "skill_eval.py"
+    expected_commands:
+      - "ERROR"
+
+  - id: wse-pitfall-2
+    should_trigger: true
+    category: pitfall
+    prompt: "Evaluate skills but no skills have eval definitions"
+    expected_reasoning_contains:
+      - "No skills"
+      - "eval definitions"
+
+  - id: wse-pitfall-3
+    should_trigger: true
+    category: pitfall
+    prompt: "Score a skill with a malformed rubric.yaml"
+    expected_reasoning_contains:
+      - "malformed"
+      - "rubric.yaml"
+    expected_commands:
+      - "FAILED"
