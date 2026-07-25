@@ -33,6 +33,54 @@ from typing import Any
 # Base paths
 SKILLS_ROOT = pathlib.Path("/home/hermeswebui/.hermes/skills")
 EVAL_RUNNER = SKILLS_ROOT / ".evals" / "skill_eval.py"
+LIVE_EVAL_RUNNER = SKILLS_ROOT / ".evals" / "live_eval.py"
+
+
+def run_live_skill_eval(skill_path: pathlib.Path, model: str, ollama_url: str, api_key: str, output_transcript: pathlib.Path | None) -> dict[str, Any]:
+    """Run live_eval.py for a single skill against a real LLM."""
+    cmd = [
+        sys.executable, str(LIVE_EVAL_RUNNER),
+        "--skill-path", str(skill_path),
+        "--model", model,
+        "--ollama-url", ollama_url,
+    ]
+    if api_key:
+        cmd.extend(["--api-key", api_key])
+    if output_transcript:
+        cmd.extend(["--output-transcript", str(output_transcript)])
+
+    try:
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=600,  # Live eval needs more time
+            cwd=str(LIVE_EVAL_RUNNER.parent),
+        )
+    except subprocess.TimeoutExpired:
+        return {
+            "skill": skill_path.name,
+            "category": skill_path.parent.name,
+            "path": str(skill_path),
+            "ok": False,
+            "exit_code": -1,
+            "stdout": "",
+            "stderr": "TIMEOUT after 600s",
+            "score": None,
+            "pass": None,
+        }
+
+    return {
+        "skill": skill_path.name,
+        "category": skill_path.parent.name,
+        "path": str(skill_path),
+        "ok": result.returncode == 0,
+        "exit_code": result.returncode,
+        "stdout": result.stdout,
+        "stderr": result.stderr,
+        "score": _extract_score(result.stdout),
+        "pass": None,
+    }
 
 
 def discover_skills(skills_root: pathlib.Path) -> list[pathlib.Path]:
@@ -223,6 +271,11 @@ def main():
     parser = argparse.ArgumentParser(description="Weekly skill evaluation runner")
     parser.add_argument("--skill-path", type=pathlib.Path, help="Evaluate a single skill instead of all")
     parser.add_argument("--transcript-path", type=pathlib.Path, help="Path to transcript JSONL for scoring")
+    parser.add_argument("--live", action="store_true", help="Run live LLM eval (requires --model)")
+    parser.add_argument("--model", type=str, help="Ollama model name for live eval (e.g. qwen2.5)")
+    parser.add_argument("--ollama-url", type=str, default="http://localhost:11434", help="Ollama API URL (default: http://localhost:11434)")
+    parser.add_argument("--api-key", type=str, default=os.environ.get("OLLAMA_API_KEY", ""), help="API key for Ollama Cloud")
+    parser.add_argument("--output-transcript", type=pathlib.Path, help="Write live eval transcript to JSONL")
     parser.add_argument("--report", action="store_true", help="Generate markdown report")
     parser.add_argument("--output", type=pathlib.Path, help="Write report to file")
     args = parser.parse_args()
@@ -246,7 +299,10 @@ def main():
     results = []
     for skill_path in skills:
         print(f"  → {skill_path.parent.name}/{skill_path.name} ...", end=" ", flush=True)
-        result = run_skill_eval(skill_path, args.transcript_path)
+        if args.live:
+            result = run_live_skill_eval(skill_path, args.model, args.ollama_url, args.api_key, args.output_transcript)
+        else:
+            result = run_skill_eval(skill_path, args.transcript_path)
         results.append(result)
         if result["ok"]:
             if result["score"] is not None:
