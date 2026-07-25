@@ -27,8 +27,84 @@ The shared runner lives at:
 
 ```
 skills/.evals/
-├── skill_eval.py              # CLI scoring engine
+├── skill_eval.py              # CLI scoring engine (transcripts)
+├── live_eval.py               # Live LLM eval runner (sends prompts to actual model)
 └── README.md                  # This file
+```
+
+## Running Evals
+
+### 1. Validate eval files (dry-run)
+
+```bash
+cd ~/.hermes/skills/.evals
+python3 skill_eval.py --skill-path ../github/bernard-git-context --dry-run
+```
+
+Checks:
+- All prompts have IDs, prompt text, and categories
+- No duplicate IDs
+- All rubric categories have at least one prompt
+- All prompt categories exist in the rubric
+- Summarizes what will be checked
+
+### 2. Score against a transcript
+
+```bash
+python3 skill_eval.py \
+  --skill-path ../github/bernard-git-context \
+  --transcript transcripts/run-2026-07-24.jsonl
+```
+
+### 3. Live eval against an actual LLM (Ollama)
+
+The `live_eval.py` script sends each prompt to a live model and scores the response in real time. This is the primary mode for **fine-tuning skills** — it tells you if a skill edit improved or regressed model behavior.
+
+**Usage:**
+
+```bash
+cd ~/.hermes/skills/.evals
+
+# Local Ollama (no API key needed)
+python3 live_eval.py \
+  --skill-path ../github/bernard-git-context \
+  --model llama3.2 \
+  --ollama-url http://localhost:11434
+
+# Ollama with cloud proxy (auto-routes to cloud models)
+python3 live_eval.py \
+  --skill-path ../github/bernard-git-context \
+  --model kimi-k2.6:cloud \
+  --ollama-url http://ollama:11434
+
+# Save transcript for later replay
+python3 live_eval.py \
+  --skill-path ../github/bernard-git-context \
+  --model kimi-k2.6:cloud \
+  --ollama-url http://ollama:11434 \
+  --output-transcript /tmp/results.jsonl
+
+# Replay transcript without re-calling LLM
+python3 skill_eval.py \
+  --skill-path ../github/bernard-git-context \
+  --transcript /tmp/results.jsonl
+```
+
+**How it works:**
+1. Loads `SKILL.md` and prepends it as a system prompt
+2. Sends each prompt from `prompts.yaml` to the model
+3. Parses the model response for `REASONING:` and `COMMANDS:` sections
+4. Scores the response using the same engine as `skill_eval.py`
+5. Prints per-prompt results and a category summary
+
+### 4. Bulk live eval (all skills)
+
+```bash
+cd ~/.hermes/skills/.evals
+python3 ../software-development/weekly-skill-evals/scripts/run_evals.py \
+  --live \
+  --model kimi-k2.6:cloud \
+  --ollama-url http://ollama:11434
 ```
 
 ## prompts.yaml
@@ -109,56 +185,6 @@ Keys:
 - `commands` — list of command strings the assistant executed
 
 For negative triggers (where skill should NOT fire), the turn may be omitted entirely from the transcript. This is the canonical way to represent "skill correctly did not trigger."
-
-## Running Evals
-
-### 1. Validate eval files (dry-run)
-
-```bash
-cd ~/.hermes/skills/.evals
-python3 skill_eval.py --skill-path ../github/bernard-git-context --dry-run
-```
-
-Checks:
-- All prompts have IDs, prompt text, and categories
-- No duplicate IDs
-- All rubric categories have at least one prompt
-- All prompt categories exist in the rubric
-- Summarizes what will be checked
-
-### 2. Score against a transcript
-
-```bash
-python3 skill_eval.py \
-  --skill-path ../github/bernard-git-context \
-  --transcript transcripts/run-2026-07-24.jsonl
-```
-
-Produces a report like:
-
-```
-======================================================================
- SKILL EVAL REPORT: bernard-git-context v1.0.0
-======================================================================
-
-  Overall Score: 85.2/100  [PASS]
-  Thresholds:    PASS ≥ 70, EXCELLENT ≥ 90
-
-----------------------------------------------------------------------
-Category               Passed    Total     Rate   Weight
-----------------------------------------------------------------------
-✓ trigger                   5        6    83.3%       20
-✓ identity                  2        2   100.0%       15
-...
-----------------------------------------------------------------------
-
-  Per-Prompt Results:
-  ------------------------------------------------------------------
-  [✓ PASS] bgc-trigger-pos-1         (trigger)
-  [✗ FAIL] bgc-trigger-neg-1         (trigger)
-           → False positive: skill triggered when it should not have
-  ...
-```
 
 ## Scoring Rules
 
