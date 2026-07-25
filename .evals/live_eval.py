@@ -212,11 +212,21 @@ def run_live_eval(skill_path: pathlib.Path, model: str, ollama_url: str, api_key
             "commands": parsed["commands"],
         }
 
-        result = score_prompt(prompt_def, turn if parsed["triggered"] or prompt_def.get("should_trigger") else None)
+        try:
+            result = score_prompt(prompt_def, turn if parsed["triggered"] else None)
+        except Exception as e:
+            print(f"[ERROR] Scoring failed: {e}")
+            result = {"passed": False, "checks": {}, "errors": [str(e)], "id": prompt_def["id"], "prompt": prompt_text, "category": prompt_def.get("category", ""), "should_trigger": prompt_def.get("should_trigger", True)}
+
+        # Add reasoning/commands to result for transcript/reporting
+        result["reasoning"] = parsed["reasoning"]
+        result["commands"] = parsed["commands"]
         results.append(result)
 
-        status = "PASS" if result["pass"] else "FAIL"
-        print(f"{status}")
+        status = "PASS" if result["passed"] else "FAIL"
+        errors = result.get("errors", [])
+        err_str = f" — {errors[0]}" if errors else ""
+        print(f"{status}{err_str}")
 
     return results
 

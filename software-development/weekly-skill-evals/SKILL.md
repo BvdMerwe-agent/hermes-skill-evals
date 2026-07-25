@@ -1,7 +1,7 @@
 ---
 title: Weekly Skill Evaluations
-description: Run weekly regression evaluations on all Hermes custom skills with eval definitions. Discovers skills, validates eval files, runs scoring, and delivers a regression report.
-tags: [evals, regression, testing, skills, weekly]
+description: Run weekly regression evaluations on all Hermes custom skills with eval definitions. Discovers skills, validates eval files, runs live LLM scoring, and delivers a regression report.
+tags: [evals, regression, testing, skills, weekly, llm, ollama]
 name: weekly-skill-evals
 ---
 
@@ -9,16 +9,34 @@ name: weekly-skill-evals
 
 ## Overview
 
-Every week, run automated evaluations across all Hermes skills that have eval definitions (`evals/prompts.yaml` + `evals/rubric.yaml`). This catches regressions — when a skill stops triggering correctly, forgets a security rule, or breaks a fallback pattern.
+This skill provides the tooling and methodology for systematically evaluating Hermes custom skills. The framework supports three modes:
+
+1. **Dry-run validation** — check eval files are well-formed (fast, no LLM calls)
+2. **Live LLM eval** — send prompts to a real model and score responses (for fine-tuning)
+3. **Transcript replay** — score a previously captured JSONL transcript (fast replay)
 
 **When to use:**
-- User says "run skill evals", "check for regressions", "weekly eval"
-- A cron job fires every Sunday morning
-- After updating a skill, to verify nothing broke
+- User says "run skill evals", "check for regressions", "weekly eval", "test skill"
+- After editing a skill's `SKILL.md`, to verify the change improved model behavior
+- Comparing model performance before/after fine-tuning a skill
+- Regression testing: ensuring skill updates didn't break existing behavior
 
 **Where it lives:**
 - Script: `~/.hermes/skills/software-development/weekly-skill-evals/scripts/run_evals.py`
+- Live runner: `~/.hermes/skills/.evals/live_eval.py`
+- Scoring engine: `~/.hermes/skills/.evals/skill_eval.py`
 - Evals are per-skill in `~/.hermes/skills/<category>/<skill-name>/evals/`
+
+## Important: Static Transcripts Are Not Enough
+
+Running evals against pre-recorded (static) transcripts only validates file format. It tells you **nothing** about whether the skill actually works with a live model. The primary purpose of this framework is **skill fine-tuning**: editing `SKILL.md`, re-running against a live LLM, and comparing scores.
+
+**Always use `--live` mode when evaluating skill changes.** The user will remind you if you try to run transcript-only evals for fine-tuning purposes.
+
+Transcripts are useful only for:
+- Fast replay after a model run (save with `--output-transcript`)
+- Sharing results between environments
+- Archiving a snapshot for later comparison
 
 ## How Eval Discovery Works
 
@@ -33,110 +51,123 @@ If both exist, the skill is included in the weekly run.
 
 ## Running Evals
 
-### Manual run (all skills)
+### Dry-run (validation only)
 
 ```bash
 cd ~/.hermes/skills/.evals
 python3 ../software-development/weekly-skill-evals/scripts/run_evals.py
 ```
 
-This runs in **dry-run mode** by default — it validates every skill's eval files are well-formed and reports coverage stats. No actual scoring happens unless transcripts exist.
+This validates every skill's eval files are well-formed and reports coverage stats. No actual scoring happens.
 
-### Manual run (single skill)
+### Dry-run single skill
 
 ```bash
 cd ~/.hermes/skills/.evals
 python3 ../software-development/weekly-skill-evals/scripts/run_evals.py --skill-path ../github/bernard-git-context
 ```
 
-### With transcripts (full scoring)
+### Live LLM Eval
 
-If you've collected transcript files for a skill:
+Send prompts to a real Ollama model and score responses. This is the mode for fine-tuning.
+
+```bash
+# Local Ollama
+python3 ../software-development/weekly-skill-evals/scripts/run_evals.py \
+    --skill-path ../github/bernard-git-context \
+    --live \
+    --model llama3.2 \
+    --ollama-url http://localhost:11434
+
+# Ollama Cloud
+python3 ../software-development/weekly-skill-evals/scripts/run_evals.py \
+    --skill-path ../github/bernard-git-context \
+    --live \
+    --model qwen2.5 \
+    --ollama-url https://ollama.com/v1 \
+    --api-key $OLLAMA_API_KEY
+```
+
+The `--live` flag sends each prompt to the model with the skill's `SKILL.md` prepended as a system prompt. The model's response is parsed for REASONING and COMMANDS, then scored against the rubric.
+
+**Always use `--output-transcript`** to save results for later comparison:
+```bash
+python3 ../software-development/weekly-skill-evals/scripts/run_evals.py \
+    --skill-path ../github/bernard-git-context \
+    --live --model qwen2.5 \
+    --ollama-url https://ollama.com/v1 \
+    --api-key $OLLAMA_API_KEY \
+    --output-transcript /tmp/bernard-git-context-$(date +%Y%m%d).jsonl
+```
+
+### Score existing transcript
 
 ```bash
 cd ~/.hermes/skills/.evals
-python3 ../software-development/weekly-skill-evals/scripts/run_evals.py \
-  --skill-path ../github/bernard-git-context \
-  --transcript-path /mnt/data/skill-transcripts/bernard-git-context/latest.jsonl
+python3 skill_eval.py --skill-path ../github/bernard-git-context --transcript /tmp/bernard-git-context-qwen25.jsonl
 ```
 
-### Generate markdown report
+## Eval Results
+
+- **PASS** ≥ 70: Skill is working correctly
+- **EXCELLENT** ≥ 90: Skill is working very well
+- **FAIL** < 70: Something regressed — check the per-category breakdown
+
+## Fine-Tuning Workflow (The Primary Use Case)
+
+The live eval is designed for iterative skill improvement. The core insight: **static transcripts don't tell you if a skill edit improved model behavior** — only a live model can. Fine-tuning is a tight loop:
+
+1. **Baseline**: Run `--live` against your current skill to get a baseline score  
+   ```bash
+   python3 live_eval.py --skill-path ../github/bernard-git-context --model qwen2.5 \
+     --ollama-url https://ollama.com/v1 --output-transcript /tmp/baseline.jsonl
+   ```
+
+2. **Edit**: Modify the skill's `SKILL.md` (add instructions, fix pitfalls, clarify edge cases)
+
+3. **Re-eval**: Run `--live` again with the **same model**  
+   ```bash
+   python3 live_eval.py --skill-path ../github/bernard-git-context --model qwen2.5 \
+     --ollama-url https://ollama.com/v1 --output-transcript /tmp/after-edit.jsonl
+   ```
+
+4. **Compare**: Did the score go up? Which categories improved? Which regressed?
+
+5. **Iterate**: Repeat until score is stable and above PASS threshold
+
+**Key rule**: Compare before/after on the same model. Scores vary wildly between models — a Qwen 2.5 score tells you nothing about Llama 3.2 performance.
+
+**When transcripts ARE useful**: Save `--output-transcript` from step 1 so you can re-run `skill_eval.py` later without re-calling the LLM. This is for archival/comparison, not for the actual fine-tuning loop.
+
+See `references/eval-format.md` for the complete eval file format specification, including field definitions, weight guidelines, and the writing workflow for new skills.
+
+## Report Generation
+
+Add `--report` to get a markdown report:
 
 ```bash
 python3 ../software-development/weekly-skill-evals/scripts/run_evals.py \
-  --report --output /tmp/skill-eval-report-$(date +%Y%m%d).md
+    --skill-path ../github/bernard-git-context \
+    --live --model qwen2.5 --report
 ```
 
-## Report Format
-
-A weekly report looks like:
-
-```
-# Skill Eval Report — 2026-07-24
-
-## Summary
-- Skills evaluated: 2
-- Skills with transcripts: 0
-- Overall pass rate: 100% (dry-run only)
-
-## bernard-git-context
-- Prompts: 18 (14 positive triggers, 4 negative triggers)
-- Rubric categories: 7
-- Dry-run: PASS
-- Score: N/A (no transcript)
-- Categories: trigger(20), identity(15), gh_path(5), fallback(10), security(20), pitfall(15), verification(5)
-
-## github-repo-management
-- Prompts: 32 (29 positive triggers, 3 negative triggers)
-- Rubric categories: 12
-- Dry-run: PASS
-- Score: N/A (no transcript)
-
-## Regressions
-None detected.
-```
-
-## What Counts as a Regression
-
-A regression is any of:
-
-1. **Trigger failure** — skill fires on a negative trigger or misses a positive trigger
-2. **Score drop** — overall score below 70 (PASS threshold) or dropped from previous week
-3. **Eval file invalid** — prompts.yaml or rubric.yaml has schema errors
-4. **Missing coverage** — a skill category has no prompts
-
-## Cron Schedule
-
-The weekly eval runs every **Sunday at 08:00 CEST**.
-
-To set it up:
+Or write to file:
 
 ```bash
-hermes cron create \
-  --name "weekly-skill-evals" \
-  --schedule "0 8 * * 0" \
-  --skill weekly-skill-evals \
-  --deliver "telegram:YOUR_DM_CHAT_ID"
+python3 ../software-development/weekly-skill-evals/scripts/run_evals.py \
+    --report --output /tmp/skill-eval-report-$(date +%Y%m%d).md
 ```
 
-**Important:** Deliver to Bernard's Telegram DM first for review. Only after manual review should results go to the family group (`vdM Home`).
+## Regression Detection
 
-## Dependencies
+The script flags regressions when:
+- A skill's eval files fail validation (bad YAML, missing fields)
+- A live eval score drops below the PASS threshold
+- A previously PASSing skill now FAILs
 
-- Python 3.9+
-- PyYAML (`pip install pyyaml`)
-- Existing `skill_eval.py` in `~/.hermes/skills/.evals/`
+## Pitfalls
 
-## Adding Evals to a New Skill
-
-1. Write `evals/prompts.yaml` with positive and negative triggers
-2. Write `evals/rubric.yaml` with weighted categories
-3. Run `python3 run_evals.py --skill-path <path>` to validate
-4. Collect transcripts over time for scoring
-5. The skill is automatically included in weekly runs
-
-## References
-
-- Eval runner: `~/.hermes/skills/.evals/skill_eval.py`
-- Eval format docs: `~/.hermes/skills/.evals/README.md`
-- GitHub repo: `https://github.com/BvdMerwe-agent/hermes-skill-evals`
+- **Live evals cost tokens**: Each prompt is a separate LLM call. A 20-prompt skill × 18 prompts = 18 API calls.
+- **Use a consistent model**: Compare before/after on the same model. Scores vary wildly between models.
+- **Temperature matters**: Live eval uses temp=0.1 for determinism. Don't use high temps for eval.
+- **Ollama Cloud requires API key**: Set `OLLAMA_API_KEY` in your environment, or pass `--api-key`.
