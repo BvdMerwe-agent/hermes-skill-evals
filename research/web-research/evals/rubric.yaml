@@ -1,0 +1,34 @@
+skill: web-research
+version: "1.0.0"
+schema_version: "1.0"
+checks:
+  - id: trigger
+    description: "Skill triggers for government procedures, viral media, Dutch neighborhoods, patents, product availability, local nuisance"
+    weight: 20
+  - id: searxng
+    description: "Uses SearXNG search snippets as primary workaround for JS-rendered pages"
+    weight: 20
+  - id: cross_reference
+    description: "Cross-references multiple sources when primary source is blocked"
+    weight: 15
+  - id: reddit
+    description: "Uses site:reddit.com via SearXNG instead of direct Reddit API fetches"
+    weight: 10
+  - id: wayback
+    description: "Uses Wayback Machine CDX API as fallback for blocked pages"
+    weight: 5
+  - id: viral_media
+    description: "Finds memes/audio/video from fragmentary descriptions"
+    weight: 10
+  - id: dutch_neighborhoods
+    description: "Researches Dutch neighborhoods with demographics and livability"
+    weight: 10
+  - id: product_verify
+    description: "Verifies actual product availability before sending URLs"
+    weight: 5
+  - id: pitfall
+    description: "Recognizes when primary source is JS-rendered or 403-blocked"
+    weight: 5
+scoring:
+  pass_threshold: 70
+  excellent_threshold: 90

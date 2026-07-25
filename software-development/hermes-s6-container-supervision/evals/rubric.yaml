@@ -1,0 +1,31 @@
+skill: hermes-s6-container-supervision
+version: "1.0.0"
+schema_version: "1.0"
+checks:
+  - id: trigger
+    description: "Skill triggers for s6/Docker/supervision tasks, does NOT fire for unrelated tasks"
+    weight: 20
+  - id: architecture
+    description: "Understands Architecture B: CMD as main program, not s6-supervised"
+    weight: 15
+  - id: cont_init
+    description: "Knows cont-init.d boot scripts and profile reconciliation"
+    weight: 15
+  - id: gateway
+    description: "Manages per-profile gateway registration via S6ServiceManager"
+    weight: 15
+  - id: run_scripts
+    description: "Modifies run scripts and understands s6-rc.d structure"
+    weight: 10
+  - id: logs
+    description: "Finds and reads gateway logs in s6-log directories"
+    weight: 10
+  - id: pitfall
+    description: "Knows why s6-setuidgid drops supplementary groups causing Docker socket permission denied"
+    weight: 10
+  - id: main_wrapper
+    description: "Understands main-wrapper.sh arg routing and exec behavior"
+    weight: 5
+scoring:
+  pass_threshold: 70
+  excellent_threshold: 90

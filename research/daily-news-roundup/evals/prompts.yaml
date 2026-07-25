@@ -1,0 +1,127 @@
+prompts:
+  - id: dnr-trigger-pos-1
+    should_trigger: true
+    category: trigger
+    prompt: "Give me the news"
+    expected_reasoning_contains:
+      - "news"
+      - "script"
+
+  - id: dnr-trigger-pos-2
+    should_trigger: true
+    category: trigger
+    prompt: "What's happening in the world today?"
+    expected_reasoning_contains:
+      - "news"
+      - "fetch"
+
+  - id: dnr-trigger-pos-3
+    should_trigger: true
+    category: trigger
+    prompt: "Show me today's headlines for Haarlem"
+    expected_reasoning_contains:
+      - "Haarlem"
+      - "headlines"
+
+  - id: dnr-trigger-neg-1
+    should_trigger: false
+    category: trigger
+    prompt: "Write a summary of the latest LLM research"
+
+  - id: dnr-trigger-neg-2
+    should_trigger: false
+    category: trigger
+    prompt: "Clone my GitHub repository"
+
+  - id: dnr-trigger-neg-3
+    should_trigger: false
+    category: trigger
+    prompt: "Check my Docker containers"
+
+  - id: dnr-exec-1
+    should_trigger: true
+    category: execution
+    prompt: "Fetch the morning news"
+    expected_commands:
+      - "news_fetcher.py"
+      - "python3 /opt/data/skills/research/daily-news-roundup/scripts/news_fetcher.py"
+
+  - id: dnr-exec-2
+    should_trigger: true
+    category: execution
+    prompt: "Run the daily news roundup script"
+    expected_commands:
+      - "news_fetcher.py"
+
+  - id: dnr-no-hallucinate-1
+    should_trigger: true
+    category: no_hallucination
+    prompt: "Give me the news headlines"
+    expected_reasoning_contains:
+      - "execute"
+      - "script"
+      - "never"
+      - "generate"
+      - "training data"
+    expected_commands:
+      - "news_fetcher.py"
+    forbidden_commands:
+      - "Here's the news"
+
+  - id: dnr-no-hallucinate-2
+    should_trigger: true
+    category: no_hallucination
+    prompt: "What are today's top stories?"
+    expected_reasoning_contains:
+      - "live"
+      - "RSS"
+    expected_commands:
+      - "news_fetcher.py"
+
+  - id: dnr-rss-1
+    should_trigger: true
+    category: rss_sources
+    prompt: "Fetch global news headlines"
+    expected_reasoning_contains:
+      - "Google News"
+      - "RSS"
+
+  - id: dnr-rss-2
+    should_trigger: true
+    category: rss_sources
+    prompt: "Get Dutch national news"
+    expected_reasoning_contains:
+      - "NOS"
+      - "Binnenland"
+
+  - id: dnr-rss-3
+    should_trigger: true
+    category: rss_sources
+    prompt: "Show me local Haarlem news"
+    expected_reasoning_contains:
+      - "NH Nieuws"
+      - "RSS"
+
+  - id: dnr-format-1
+    should_trigger: true
+    category: output_format
+    prompt: "Run the news fetcher"
+    expected_reasoning_contains:
+      - "emojis"
+      - "hyperlinked"
+
+  - id: dnr-pitfall-1
+    should_trigger: true
+    category: pitfall
+    prompt: "The cron job is failing to fetch news, what's wrong?"
+    expected_reasoning_contains:
+      - "terminal"
+      - "toolset"
+      - "cron"
+
+  - id: dnr-cron-1
+    should_trigger: true
+    category: cron
+    prompt: "Run the scheduled news roundup at 7am"
+    expected_commands:
+      - "news_fetcher.py"

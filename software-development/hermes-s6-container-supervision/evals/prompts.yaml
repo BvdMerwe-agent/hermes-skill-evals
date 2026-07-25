@@ -1,0 +1,141 @@
+prompts:
+  - id: s6-trigger-pos-1
+    should_trigger: true
+    category: trigger
+    prompt: "Add a new static service to the Hermes Docker image"
+    expected_reasoning_contains:
+      - "s6"
+      - "service"
+
+  - id: s6-trigger-pos-2
+    should_trigger: true
+    category: trigger
+    prompt: "Why isn't my gateway starting after docker restart?"
+    expected_reasoning_contains:
+      - "gateway"
+      - "s6"
+
+  - id: s6-trigger-pos-3
+    should_trigger: true
+    category: trigger
+    prompt: "Modify the cont-init.d boot script"
+    expected_reasoning_contains:
+      - "cont-init.d"
+      - "boot"
+
+  - id: s6-trigger-neg-1
+    should_trigger: false
+    category: trigger
+    prompt: "Clone a GitHub repository"
+
+  - id: s6-trigger-neg-2
+    should_trigger: false
+    category: trigger
+    prompt: "Fetch the daily news"
+
+  - id: s6-trigger-neg-3
+    should_trigger: false
+    category: trigger
+    prompt: "Download a YouTube playlist"
+
+  - id: s6-arch-1
+    should_trigger: true
+    category: architecture
+    prompt: "Why is main hermes running as CMD instead of an s6 service?"
+    expected_reasoning_contains:
+      - "Architecture B"
+      - "CMD"
+      - "s6-supervised"
+
+  - id: s6-arch-2
+    should_trigger: true
+    category: architecture
+    prompt: "Explain the main-wrapper.sh routing"
+    expected_reasoning_contains:
+      - "main-wrapper.sh"
+      - "exec"
+      - "args"
+
+  - id: s6-cont-init-1
+    should_trigger: true
+    category: cont_init
+    prompt: "What happens during container boot for profile gateways?"
+    expected_reasoning_contains:
+      - "reconcile"
+      - "profile"
+      - "gateway_state.json"
+
+  - id: s6-cont-init-2
+    should_trigger: true
+    category: cont_init
+    prompt: "The stage2 hook runs but profiles aren't synced"
+    expected_reasoning_contains:
+      - "stage2-hook.sh"
+      - "skills_sync.py"
+
+  - id: s6-gateway-1
+    should_trigger: true
+    category: gateway
+    prompt: "Register a new profile gateway"
+    expected_commands:
+      - "register_profile_gateway"
+      - "S6ServiceManager"
+
+  - id: s6-gateway-2
+    should_trigger: true
+    category: gateway
+    prompt: "Check if the coder gateway is running"
+    expected_commands:
+      - "is_running"
+      - "list_profile_gateways"
+
+  - id: s6-run-1
+    should_trigger: true
+    category: run_scripts
+    prompt: "Modify the dashboard run script for s6-rc"
+    expected_commands:
+      - "s6-rc.d"
+      - "run"
+
+  - id: s6-run-2
+    should_trigger: true
+    category: run_scripts
+    prompt: "Add a conditional service that only starts when HERMES_DASHBOARD is set"
+    expected_reasoning_contains:
+      - "HERMES_DASHBOARD"
+      - "exec sleep infinity"
+
+  - id: s6-logs-1
+    should_trigger: true
+    category: logs
+    prompt: "Find the gateway logs for the default profile"
+    expected_commands:
+      - "gateways/default/current"
+      - "s6-log"
+
+  - id: s6-pitfall-1
+    should_trigger: true
+    category: pitfall
+    prompt: "docker ps fails with permission denied in the Hermes container"
+    expected_reasoning_contains:
+      - "s6-setuidgid"
+      - "supplementary groups"
+      - "docker.sock"
+
+  - id: s6-pitfall-2
+    should_trigger: true
+    category: pitfall
+    prompt: "The gateway restarts every time I docker restart the container"
+    expected_reasoning_contains:
+      - "prior_state"
+      - "running"
+      - "reconcile"
+
+  - id: s6-wrapper-1
+    should_trigger: true
+    category: main_wrapper
+    prompt: "How does main-wrapper.sh handle bare exec vs hermes subcommands?"
+    expected_reasoning_contains:
+      - "routes"
+      - "exec"
+      - "hermes subcommand"

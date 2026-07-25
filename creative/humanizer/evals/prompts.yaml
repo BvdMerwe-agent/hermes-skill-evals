@@ -1,0 +1,148 @@
+prompts:
+  - id: hum-trigger-pos-1
+    should_trigger: true
+    category: trigger
+    prompt: "Humanize this text"
+    expected_reasoning_contains:
+      - "humanize"
+      - "AI"
+
+  - id: hum-trigger-pos-2
+    should_trigger: true
+    category: trigger
+    prompt: "Make this sound less like ChatGPT wrote it"
+    expected_reasoning_contains:
+      - "AI"
+      - "natural"
+
+  - id: hum-trigger-pos-3
+    should_trigger: true
+    category: trigger
+    prompt: "De-slop this blog post"
+    expected_reasoning_contains:
+      - "AI"
+      - "slop"
+
+  - id: hum-trigger-pos-4
+    should_trigger: true
+    category: trigger
+    prompt: "Check if this article was written by an AI"
+    expected_reasoning_contains:
+      - "AI"
+      - "detect"
+
+  - id: hum-trigger-neg-1
+    should_trigger: false
+    category: trigger
+    prompt: "Clone a GitHub repository"
+
+  - id: hum-trigger-neg-2
+    should_trigger: false
+    category: trigger
+    prompt: "Fetch the daily news headlines"
+
+  - id: hum-trigger-neg-3
+    should_trigger: false
+    category: trigger
+    prompt: "Set up Docker on my home server"
+
+  - id: hum-pattern-1
+    should_trigger: true
+    category: pattern_detection
+    prompt: "Humanize this paragraph: 'In the ever-evolving landscape of digital transformation...'"
+    expected_reasoning_contains:
+      - "ever-evolving"
+      - "landscape"
+      - "digital transformation"
+      - "AI pattern"
+
+  - id: hum-pattern-2
+    should_trigger: true
+    category: pattern_detection
+    prompt: "This text uses 'delve' and 'tapestry' a lot, is it AI?"
+    expected_reasoning_contains:
+      - "delve"
+      - "tapestry"
+      - "AI"
+
+  - id: hum-rewrite-1
+    should_trigger: true
+    category: rewrite
+    prompt: "Rewrite this to remove AI-isms"
+    expected_reasoning_contains:
+      - "rewrite"
+      - "preserve meaning"
+
+  - id: hum-rewrite-2
+    should_trigger: true
+    category: rewrite
+    prompt: "Make this PR description sound natural"
+    expected_reasoning_contains:
+      - "natural"
+      - "PR"
+
+  - id: hum-voice-1
+    should_trigger: true
+    category: voice_calibration
+    prompt: "Humanize this using my writing style from /mnt/home/my-essays/"
+    expected_reasoning_contains:
+      - "voice"
+      - "writing sample"
+      - "match"
+
+  - id: hum-voice-2
+    should_trigger: true
+    category: voice_calibration
+    prompt: "Make this sound like me. Here's a sample of my writing: ..."
+    expected_reasoning_contains:
+      - "sample"
+      - "match their voice"
+
+  - id: hum-personality-1
+    should_trigger: true
+    category: personality
+    prompt: "Add some personality to this sterile text"
+    expected_reasoning_contains:
+      - "personality"
+      - "soul"
+      - "sterile"
+
+  - id: hum-personality-2
+    should_trigger: true
+    category: personality
+    prompt: "This rewrite still sounds robotic, make it human"
+    expected_reasoning_contains:
+      - "robotic"
+      - "human"
+      - "soul"
+
+  - id: hum-detection-1
+    should_trigger: true
+    category: ai_detection
+    prompt: "Is this essay AI-written? I don't have detector tools"
+    expected_reasoning_contains:
+      - "manual detection"
+      - "AI patterns"
+
+  - id: hum-pitfall-1
+    should_trigger: true
+    category: pitfall
+    prompt: "Humanize this file and overwrite it directly"
+    expected_reasoning_contains:
+      - "show"
+      - "user"
+      - "before"
+      - "silently overwrite"
+    forbidden_commands:
+      - "write_file"
+
+  - id: hum-pitfall-2
+    should_trigger: true
+    category: pitfall
+    prompt: "Fix this markdown doc without showing me the changes"
+    expected_reasoning_contains:
+      - "show"
+      - "diff"
+      - "user"
+    forbidden_commands:
+      - "patch"

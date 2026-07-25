@@ -1,0 +1,119 @@
+prompts:
+  - id: n8n-trigger-pos-1
+    should_trigger: true
+    category: trigger
+    prompt: "Modify this n8n workflow JSON to add a new node"
+    expected_reasoning_contains:
+      - "n8n"
+      - "workflow"
+
+  - id: n8n-trigger-pos-2
+    should_trigger: true
+    category: trigger
+    prompt: "Replace the filesystem scanner with a GitLab API node in n8n"
+    expected_reasoning_contains:
+      - "n8n"
+      - "GitLab"
+
+  - id: n8n-trigger-pos-3
+    should_trigger: true
+    category: trigger
+    prompt: "Clean up orphaned connections after removing nodes from my n8n workflow"
+    expected_reasoning_contains:
+      - "n8n"
+      - "orphaned"
+
+  - id: n8n-trigger-neg-1
+    should_trigger: false
+    category: trigger
+    prompt: "Clone a GitHub repository"
+
+  - id: n8n-trigger-neg-2
+    should_trigger: false
+    category: trigger
+    prompt: "Fetch the daily news"
+
+  - id: n8n-trigger-neg-3
+    should_trigger: false
+    category: trigger
+    prompt: "Download a YouTube playlist"
+
+  - id: n8n-json-1
+    should_trigger: true
+    category: json_structure
+    prompt: "Explain the n8n workflow JSON structure"
+    expected_reasoning_contains:
+      - "nodes"
+      - "connections"
+      - "node names"
+      - "keys"
+
+  - id: n8n-json-2
+    should_trigger: true
+    category: json_structure
+    prompt: "What are the top-level keys in an n8n workflow export?"
+    expected_reasoning_contains:
+      - "name"
+      - "nodes"
+      - "connections"
+
+  - id: n8n-prog-1
+    should_trigger: true
+    category: programmatic_edit
+    prompt: "Remove three nodes from this workflow JSON and rewire the connections"
+    expected_commands:
+      - "python3"
+      - "json.load"
+      - "connections"
+
+  - id: n8n-prog-2
+    should_trigger: true
+    category: programmatic_edit
+    prompt: "Batch replace deprecated HTTP nodes in my n8n workflows"
+    expected_commands:
+      - "python3"
+      - "n8n-nodes-base.httpRequest"
+
+  - id: n8n-gitlab-1
+    should_trigger: true
+    category: gitlab_api
+    prompt: "Add a GitLab API call to fetch project issues in n8n"
+    expected_reasoning_contains:
+      - "GitLab"
+      - "REST API"
+      - "n8n"
+
+  - id: n8n-orphan-1
+    should_trigger: true
+    category: orphaned_connections
+    prompt: "I removed a node and now the workflow import fails"
+    expected_reasoning_contains:
+      - "orphaned"
+      - "connections"
+      - "node name"
+
+  - id: n8n-batch-1
+    should_trigger: true
+    category: batch_modify
+    prompt: "Update all workflows to use the new credential ID"
+    expected_commands:
+      - "python3"
+      - "credentialId"
+
+  - id: n8n-validate-1
+    should_trigger: true
+    category: validation
+    prompt: "This imported n8n workflow fails validation, what's wrong?"
+    expected_reasoning_contains:
+      - "validation"
+      - "connections"
+      - "node name"
+
+  - id: n8n-pitfall-1
+    should_trigger: true
+    category: pitfall
+    prompt: "I used the node ID in connections but it doesn't work"
+    expected_reasoning_contains:
+      - "node names"
+      - "not IDs"
+      - "keys"

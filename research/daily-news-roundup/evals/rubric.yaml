@@ -1,0 +1,28 @@
+skill: daily-news-roundup
+version: "1.0.0"
+schema_version: "1.0"
+checks:
+  - id: trigger
+    description: "Skill triggers for news requests and cron jobs, does NOT fire for unrelated tasks"
+    weight: 20
+  - id: execution
+    description: "Executes the news_fetcher.py script via terminal tool"
+    weight: 25
+  - id: no_hallucination
+    description: "Returns script output verbatim, never generates headlines from training data"
+    weight: 25
+  - id: rss_sources
+    description: "Uses correct RSS sources: Google News, NOS, NH Nieuws"
+    weight: 10
+  - id: output_format
+    description: "Output uses correct format with emojis and hyperlinked headlines"
+    weight: 10
+  - id: pitfall
+    description: "Handles missing terminal toolset in cron sessions"
+    weight: 5
+  - id: cron
+    description: "Runs at 07:00 CEST when scheduled"
+    weight: 5
+scoring:
+  pass_threshold: 70
+  excellent_threshold: 90

@@ -1,0 +1,31 @@
+skill: native-mcp
+version: "1.0.0"
+schema_version: "1.0"
+checks:
+  - id: trigger
+    description: "Skill triggers for MCP server configuration and tool usage, does NOT fire for unrelated tasks"
+    weight: 20
+  - id: config
+    description: "Configures MCP servers in config.yaml with correct stdio or HTTP transport"
+    weight: 20
+  - id: stdio
+    description: "Sets up stdio transport with command, args, env, and timeouts"
+    weight: 15
+  - id: http
+    description: "Sets up HTTP transport with URL and headers"
+    weight: 10
+  - id: discovery
+    description: "Understands that tools are auto-discovered and prefixed with mcp_servername_*"
+    weight: 10
+  - id: prerequisites
+    description: "Checks for mcp package, Node.js, or uv prerequisites"
+    weight: 10
+  - id: restart
+    description: "Knows Hermes must restart after MCP config changes"
+    weight: 10
+  - id: pitfall
+    description: "Distinguishes native MCP from mcporter ad-hoc usage"
+    weight: 5
+scoring:
+  pass_threshold: 70
+  excellent_threshold: 90

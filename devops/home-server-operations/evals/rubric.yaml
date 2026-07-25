@@ -1,0 +1,34 @@
+skill: home-server-operations
+version: "1.0.0"
+schema_version: "1.0"
+checks:
+  - id: trigger
+    description: "Skill triggers for Docker/server/homelab tasks, does NOT fire for unrelated tasks"
+    weight: 20
+  - id: verification
+    description: "Verifies server topology from README against actual container state"
+    weight: 15
+  - id: container_mgmt
+    description: "Manages Docker containers via socket mount or SSH fallback"
+    weight: 15
+  - id: portainer
+    description: "Uses Portainer API patterns for stack management"
+    weight: 10
+  - id: cloudflare
+    description: "Exposes services via Cloudflare Tunnel correctly"
+    weight: 10
+  - id: dns_proxy
+    description: "Handles .vdm DNS and proxy setup"
+    weight: 10
+  - id: pitfall
+    description: "Recognizes container-vs-host OS distinction and s6 privilege issues"
+    weight: 10
+  - id: smart_home
+    description: "Integrates with LocalTuya and Home Assistant"
+    weight: 5
+  - id: media_pipeline
+    description: "Maintains music/media pipeline"
+    weight: 5
+scoring:
+  pass_threshold: 70
+  excellent_threshold: 90

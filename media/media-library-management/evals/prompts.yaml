@@ -1,0 +1,133 @@
+prompts:
+  - id: mlm-trigger-pos-1
+    should_trigger: true
+    category: trigger
+    prompt: "Download a YouTube playlist to my Jellyfin server"
+    expected_reasoning_contains:
+      - "Jellyfin"
+      - "download"
+
+  - id: mlm-trigger-pos-2
+    should_trigger: true
+    category: trigger
+    prompt: "Sync my Spotify playlist to the local music library"
+    expected_reasoning_contains:
+      - "Spotify"
+      - "sync"
+      - "playlist"
+
+  - id: mlm-trigger-pos-3
+    should_trigger: true
+    category: trigger
+    prompt: "Organize my music metadata for Jellyfin"
+    expected_reasoning_contains:
+      - "metadata"
+      - "Jellyfin"
+
+  - id: mlm-trigger-neg-1
+    should_trigger: false
+    category: trigger
+    prompt: "Clone a GitHub repository"
+
+  - id: mlm-trigger-neg-2
+    should_trigger: false
+    category: trigger
+    prompt: "Fetch the daily news"
+
+  - id: mlm-trigger-neg-3
+    should_trigger: false
+    category: trigger
+    prompt: "Set up a Cloudflare Tunnel"
+
+  - id: mlm-acquisition-1
+    should_trigger: true
+    category: acquisition
+    prompt: "Download ambient reading music from YouTube"
+    expected_commands:
+      - "yt-dlp"
+      - "--audio-format mp3"
+
+  - id: mlm-acquisition-2
+    should_trigger: true
+    category: acquisition
+    prompt: "Rip audio from this SoundCloud track"
+    expected_commands:
+      - "yt-dlp"
+      - "-x"
+
+  - id: mlm-acquisition-3
+    should_trigger: true
+    category: acquisition
+    prompt: "Get this Bandcamp album for my library"
+    expected_commands:
+      - "yt-dlp"
+      - "bandcamp"
+
+  - id: mlm-library-1
+    should_trigger: true
+    category: library_path
+    prompt: "Where should I put new music for Jellyfin?"
+    expected_commands:
+      - "docker inspect"
+      - "Mounts"
+      - "/mnt/home/media"
+
+  - id: mlm-library-2
+    should_trigger: true
+    category: library_path
+    prompt: "Find the Jellyfin music library path on Atlas"
+    expected_reasoning_contains:
+      - "docker inspect"
+      - "host-side mount"
+
+  - id: mlm-playlist-1
+    should_trigger: true
+    category: playlist_sync
+    prompt: "Match my Spotify favorites against the local library"
+    expected_reasoning_contains:
+      - "match"
+      - "Spotify"
+      - "track"
+
+  - id: mlm-playlist-2
+    should_trigger: true
+    category: playlist_sync
+    prompt: "Create a Jellyfin playlist from my Spotify Discover Weekly"
+    expected_commands:
+      - "Jellyfin"
+      - "playlist"
+
+  - id: mlm-metadata-1
+    should_trigger: true
+    category: metadata
+    prompt: "Fix the tags on my downloaded music"
+    expected_commands:
+      - "metadata"
+      - "tags"
+
+  - id: mlm-ytdlp-1
+    should_trigger: true
+    category: yt_dlp_install
+    prompt: "Install yt-dlp in the Hermes container"
+    expected_commands:
+      - "curl"
+      - "yt-dlp"
+      - "/tmp/yt-dlp"
+
+  - id: mlm-pitfall-1
+    should_trigger: true
+    category: pitfall
+    prompt: "yt-dlp says ffmpeg is not installed"
+    expected_reasoning_contains:
+      - "ffmpeg"
+      - "missing"
+      - "install"
+
+  - id: mlm-ffmpeg-1
+    should_trigger: true
+    category: ffmpeg
+    prompt: "Convert downloaded YouTube audio to MP3 for Jellyfin"
+    expected_commands:
+      - "ffmpeg"
+      - "mp3"
+      - "-i"

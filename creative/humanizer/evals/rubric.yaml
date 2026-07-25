@@ -1,0 +1,28 @@
+skill: humanizer
+version: "1.0.0"
+schema_version: "1.0"
+checks:
+  - id: trigger
+    description: "Skill triggers for humanize/de-AI requests, does NOT fire for unrelated tasks"
+    weight: 20
+  - id: pattern_detection
+    description: "Identifies AI writing patterns from the 29-pattern list"
+    weight: 20
+  - id: rewrite
+    description: "Rewrites text to remove AI-isms while preserving meaning"
+    weight: 20
+  - id: voice_calibration
+    description: "Matches user's voice when a writing sample is provided"
+    weight: 15
+  - id: personality
+    description: "Injects personality and soul, not just pattern removal"
+    weight: 15
+  - id: ai_detection
+    description: "Can check whether text is AI-written when tools are unavailable"
+    weight: 5
+  - id: pitfall
+    description: "Shows rewrite to user before silently overwriting files"
+    weight: 5
+scoring:
+  pass_threshold: 70
+  excellent_threshold: 90

@@ -1,0 +1,145 @@
+prompts:
+  - id: wr-trigger-pos-1
+    should_trigger: true
+    category: trigger
+    prompt: "How do I renew my South African passport in the Netherlands?"
+    expected_reasoning_contains:
+      - "procedure"
+      - "research"
+
+  - id: wr-trigger-pos-2
+    should_trigger: true
+    category: trigger
+    prompt: "Find that meme with the cat and the laser"
+    expected_reasoning_contains:
+      - "meme"
+      - "search"
+
+  - id: wr-trigger-pos-3
+    should_trigger: true
+    category: trigger
+    prompt: "Research Dutch neighborhoods for house-hunting in Haarlem"
+    expected_reasoning_contains:
+      - "neighborhoods"
+      - "Dutch"
+
+  - id: wr-trigger-pos-4
+    should_trigger: true
+    category: trigger
+    prompt: "What patents expired today?"
+    expected_reasoning_contains:
+      - "patent"
+      - "expiration"
+
+  - id: wr-trigger-pos-5
+    should_trigger: true
+    category: trigger
+    prompt: "Check if this product is available on bol.com"
+    expected_reasoning_contains:
+      - "bol.com"
+      - "availability"
+
+  - id: wr-trigger-pos-6
+    should_trigger: true
+    category: trigger
+    prompt: "Find noise complaints about the building near my home"
+    expected_reasoning_contains:
+      - "nuisance"
+      - "local"
+
+  - id: wr-trigger-neg-1
+    should_trigger: false
+    category: trigger
+    prompt: "Clone a GitHub repository"
+
+  - id: wr-trigger-neg-2
+    should_trigger: false
+    category: trigger
+    prompt: "Restart the Jellyfin container"
+
+  - id: wr-trigger-neg-3
+    should_trigger: false
+    category: trigger
+    prompt: "Humanize this blog post"
+
+  - id: wr-searxng-1
+    should_trigger: true
+    category: searxng
+    prompt: "Research the VFS Global visa process for South Africa"
+    expected_commands:
+      - "search.bernardus.dev"
+      - "searxng"
+    expected_reasoning_contains:
+      - "SearXNG"
+      - "snippet"
+
+  - id: wr-searxng-2
+    should_trigger: true
+    category: searxng
+    prompt: "The embassy page returns Loading..., how do I get the info?"
+    expected_reasoning_contains:
+      - "JS-rendered"
+      - "SearXNG"
+      - "snippet"
+
+  - id: wr-cross-ref-1
+    should_trigger: true
+    category: cross_reference
+    prompt: "Compile a guide for passport renewal from multiple sources"
+    expected_reasoning_contains:
+      - "multiple sources"
+      - "cross-reference"
+
+  - id: wr-reddit-1
+    should_trigger: true
+    category: reddit
+    prompt: "Search Reddit for practical info on Dutch visa applications"
+    expected_commands:
+      - "site:reddit.com"
+      - "SearXNG"
+    forbidden_commands:
+      - "old.reddit.com"
+      - ".json"
+
+  - id: wr-wayback-1
+    should_trigger: true
+    category: wayback
+    prompt: "The government page is down, can you find a cached version?"
+    expected_reasoning_contains:
+      - "Wayback"
+      - "archive"
+
+  - id: wr-viral-1
+    should_trigger: true
+    category: viral_media
+    prompt: "Find the TikTok sound that goes dun dun dunnn"
+    expected_reasoning_contains:
+      - "TikTok"
+      - "fragmentary"
+
+  - id: wr-dutch-1
+    should_trigger: true
+    category: dutch_neighborhoods
+    prompt: "Compare Schalkwijk and Haarlem-Centrum for livability"
+    expected_reasoning_contains:
+      - "demographics"
+      - "diversity"
+
+  - id: wr-product-1
+    should_trigger: true
+    category: product_verify
+    prompt: "Is this item in stock on Coolblue?"
+    expected_reasoning_contains:
+      - "verify"
+      - "inventory"
+      - "actual"
+
+  - id: wr-pitfall-1
+    should_trigger: true
+    category: pitfall
+    prompt: "The VFS Global page shows Loading... when I fetch it"
+    expected_reasoning_contains:
+      - "JS-rendered"
+      - "SearXNG"
+      - "not"
+      - "urllib"

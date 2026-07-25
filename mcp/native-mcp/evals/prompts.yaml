@@ -1,0 +1,124 @@
+prompts:
+  - id: mcp-trigger-pos-1
+    should_trigger: true
+    category: trigger
+    prompt: "Add an MCP server to my Hermes config"
+    expected_reasoning_contains:
+      - "MCP"
+      - "config.yaml"
+
+  - id: mcp-trigger-pos-2
+    should_trigger: true
+    category: trigger
+    prompt: "How do I use MCP tools in Hermes?"
+    expected_reasoning_contains:
+      - "MCP"
+      - "tools"
+
+  - id: mcp-trigger-pos-3
+    should_trigger: true
+    category: trigger
+    prompt: "Connect to an HTTP MCP server"
+    expected_reasoning_contains:
+      - "MCP"
+      - "HTTP"
+
+  - id: mcp-trigger-neg-1
+    should_trigger: false
+    category: trigger
+    prompt: "Clone a GitHub repository"
+
+  - id: mcp-trigger-neg-2
+    should_trigger: false
+    category: trigger
+    prompt: "Fetch the daily news"
+
+  - id: mcp-trigger-neg-3
+    should_trigger: false
+    category: trigger
+    prompt: "Set up Docker on my home server"
+
+  - id: mcp-config-1
+    should_trigger: true
+    category: config
+    prompt: "Configure a time MCP server in config.yaml"
+    expected_commands:
+      - "mcp_servers:"
+      - "command:"
+      - "args:"
+
+  - id: mcp-config-2
+    should_trigger: true
+    category: config
+    prompt: "Set up an HTTP MCP server with headers"
+    expected_commands:
+      - "url:"
+      - "headers:"
+      - "mcp_servers:"
+
+  - id: mcp-stdio-1
+    should_trigger: true
+    category: stdio
+    prompt: "Configure an npx-based MCP server with a 2-minute timeout"
+    expected_reasoning_contains:
+      - "stdio"
+      - "timeout: 120"
+      - "connect_timeout"
+
+  - id: mcp-stdio-2
+    should_trigger: true
+    category: stdio
+    prompt: "Set environment variables for an MCP stdio server"
+    expected_commands:
+      - "env:"
+      - "SOME_API_KEY:"
+
+  - id: mcp-http-1
+    should_trigger: true
+    category: http
+    prompt: "Connect to a remote HTTP MCP server"
+    expected_commands:
+      - "url:"
+      - "mcp_servers:"
+
+  - id: mcp-discovery-1
+    should_trigger: true
+    category: discovery
+    prompt: "What prefix will MCP tools have after I add a server?"
+    expected_reasoning_contains:
+      - "prefix"
+      - "mcp_servername_*"
+
+  - id: mcp-prereq-1
+    should_trigger: true
+    category: prerequisites
+    prompt: "Do I need Node.js for MCP servers?"
+    expected_reasoning_contains:
+      - "Node.js"
+      - "npx"
+
+  - id: mcp-prereq-2
+    should_trigger: true
+    category: prerequisites
+    prompt: "Install the MCP SDK for Hermes"
+    expected_commands:
+      - "pip install mcp"
+      - "uv pip install mcp"
+
+  - id: mcp-restart-1
+    should_trigger: true
+    category: restart
+    prompt: "I added an MCP server but tools aren't showing up"
+    expected_reasoning_contains:
+      - "restart"
+      - "Hermes"
+      - "config changes"
+
+  - id: mcp-pitfall-1
+    should_trigger: true
+    category: pitfall
+    prompt: "Should I use native MCP or mcporter for this one-off task?"
+    expected_reasoning_contains:
+      - "native MCP"
+      - "mcporter"
+      - "ad-hoc"

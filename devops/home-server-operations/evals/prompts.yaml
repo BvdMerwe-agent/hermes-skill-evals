@@ -1,0 +1,161 @@
+prompts:
+  - id: hso-trigger-pos-1
+    should_trigger: true
+    category: trigger
+    prompt: "Check which Docker containers are running on my home server"
+    expected_reasoning_contains:
+      - "Docker"
+      - "container"
+
+  - id: hso-trigger-pos-2
+    should_trigger: true
+    category: trigger
+    prompt: "Expose my Jellyfin server to the internet via Cloudflare Tunnel"
+    expected_reasoning_contains:
+      - "Cloudflare"
+      - "tunnel"
+
+  - id: hso-trigger-pos-3
+    should_trigger: true
+    category: trigger
+    prompt: "Verify my server topology against the README"
+    expected_reasoning_contains:
+      - "server"
+      - "topology"
+
+  - id: hso-trigger-neg-1
+    should_trigger: false
+    category: trigger
+    prompt: "Write a poem about the ocean"
+
+  - id: hso-trigger-neg-2
+    should_trigger: false
+    category: trigger
+    prompt: "Clone a GitHub repository for my project"
+
+  - id: hso-trigger-neg-3
+    should_trigger: false
+    category: trigger
+    prompt: "Summarize the latest research paper on LLMs"
+
+  - id: hso-verify-1
+    should_trigger: true
+    category: verification
+    prompt: "Here's my server README, verify the claims"
+    expected_commands:
+      - "hostname"
+      - "uname -a"
+      - "/etc/os-release"
+      - "free -h"
+    expected_reasoning_contains:
+      - "container"
+      - "host"
+
+  - id: hso-verify-2
+    should_trigger: true
+    category: verification
+    prompt: "Check if the ports in my README match reality"
+    expected_commands:
+      - "docker inspect"
+      - "Ports"
+
+  - id: hso-container-1
+    should_trigger: true
+    category: container_mgmt
+    prompt: "Restart the Jellyfin container on Atlas"
+    expected_commands:
+      - "docker restart"
+      - "docker ps"
+
+  - id: hso-container-2
+    should_trigger: true
+    category: container_mgmt
+    prompt: "Check the logs for the dashboard container"
+    expected_commands:
+      - "docker logs"
+      - "dashboard"
+
+  - id: hso-container-3
+    should_trigger: true
+    category: container_mgmt
+    prompt: "List all containers managed by Portainer"
+    expected_commands:
+      - "docker ps"
+      - "Portainer"
+
+  - id: hso-portainer-1
+    should_trigger: true
+    category: portainer
+    prompt: "Update the Portainer stack for my dashboard"
+    expected_commands:
+      - "Portainer"
+      - "stack"
+
+  - id: hso-portainer-2
+    should_trigger: true
+    category: portainer
+    prompt: "Show me the Portainer-managed stacks"
+    expected_commands:
+      - "Portainer"
+
+  - id: hso-cf-1
+    should_trigger: true
+    category: cloudflare
+    prompt: "Set up a Cloudflare Tunnel for my new service"
+    expected_commands:
+      - "cloudflared"
+      - "tunnel"
+
+  - id: hso-cf-2
+    should_trigger: true
+    category: cloudflare
+    prompt: "Expose port 3000 to the internet securely"
+    expected_reasoning_contains:
+      - "Cloudflare"
+      - "tunnel"
+
+  - id: hso-dns-1
+    should_trigger: true
+    category: dns_proxy
+    prompt: "Configure a .vdm domain for my dashboard"
+    expected_commands:
+      - ".vdm"
+      - "dns"
+      - "proxy"
+
+  - id: hso-pitfall-1
+    should_trigger: true
+    category: pitfall
+    prompt: "My container shows Debian but the host is Ubuntu, what's wrong?"
+    expected_reasoning_contains:
+      - "container"
+      - "host"
+      - "Debian"
+      - "Ubuntu"
+
+  - id: hso-pitfall-2
+    should_trigger: true
+    category: pitfall
+    prompt: "docker ps fails with permission denied inside the Hermes container"
+    expected_reasoning_contains:
+      - "s6"
+      - "setuidgid"
+      - "supplementary"
+      - "groups"
+
+  - id: hso-smart-1
+    should_trigger: true
+    category: smart_home
+    prompt: "Add a LocalTuya device to Home Assistant"
+    expected_commands:
+      - "LocalTuya"
+      - "tuya"
+
+  - id: hso-media-1
+    should_trigger: true
+    category: media_pipeline
+    prompt: "Sync my music playlist to Jellyfin"
+    expected_commands:
+      - "Jellyfin"
+      - "playlist"
+      - "sync"

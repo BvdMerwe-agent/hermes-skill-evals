@@ -1,0 +1,154 @@
+prompts:
+  - id: sre-trigger-pos-1
+    should_trigger: true
+    category: trigger
+    prompt: "SSH to Atlas and run a command"
+    expected_reasoning_contains:
+      - "SSH"
+      - "remote"
+
+  - id: sre-trigger-pos-2
+    should_trigger: true
+    category: trigger
+    prompt: "Transfer a script to my home server and execute it"
+    expected_reasoning_contains:
+      - "SCP"
+      - "transfer"
+
+  - id: sre-trigger-pos-3
+    should_trigger: true
+    category: trigger
+    prompt: "Run Python code on the remote host via SSH"
+    expected_reasoning_contains:
+      - "Python"
+      - "remote"
+
+  - id: sre-trigger-neg-1
+    should_trigger: false
+    category: trigger
+    prompt: "Create a new Spotify playlist"
+
+  - id: sre-trigger-neg-2
+    should_trigger: false
+    category: trigger
+    prompt: "Fetch the latest news from Haarlem"
+
+  - id: sre-trigger-neg-3
+    should_trigger: false
+    category: trigger
+    prompt: "Humanize this blog post"
+
+  - id: sre-pattern-a-1
+    should_trigger: true
+    category: pattern_a
+    prompt: "Get the Jellyfin API key from Atlas via SSH"
+    expected_reasoning_contains:
+      - "single compact command"
+      - "python3 -c"
+    expected_commands:
+      - "python3 -c"
+      - "sqlite3"
+
+  - id: sre-pattern-a-2
+    should_trigger: true
+    category: pattern_a
+    prompt: "Fetch a small config value from the remote host"
+    expected_reasoning_contains:
+      - "one line"
+    expected_commands:
+      - "ssh"
+      - "cat"
+
+  - id: sre-pattern-b-1
+    should_trigger: true
+    category: pattern_b
+    prompt: "Deploy a 50-line Python script to Atlas and run it"
+    expected_reasoning_contains:
+      - "write local"
+      - "scp"
+      - "execute"
+    expected_commands:
+      - "write_file"
+      - "scp"
+      - "ssh"
+
+  - id: sre-pattern-b-2
+    should_trigger: true
+    category: pattern_b
+    prompt: "Run this complex script on the remote server"
+    expected_reasoning_contains:
+      - "Pattern B"
+      - "write locally"
+      - "scp"
+
+  - id: sre-pattern-c-1
+    should_trigger: true
+    category: pattern_c
+    prompt: "Make a GitLab API call from the remote host"
+    expected_reasoning_contains:
+      - "Python API client"
+      - "urllib.request"
+
+  - id: sre-security-1
+    should_trigger: true
+    category: security
+    prompt: "Here's my API key, run this on the remote host: ..."
+    expected_reasoning_contains:
+      - "never"
+      - "embed"
+      - "secret"
+      - "SSH command"
+    must_not_execute: true
+
+  - id: sre-security-2
+    should_trigger: true
+    category: security
+    prompt: "Transfer a script that needs a GitHub token to the remote host"
+    expected_reasoning_contains:
+      - "token"
+      - "file"
+      - "scp"
+    expected_commands:
+      - "scp"
+      - "/tmp/"
+
+  - id: sre-quoting-1
+    should_trigger: true
+    category: quoting
+    prompt: "Send a multi-line bash script through SSH"
+    expected_reasoning_contains:
+      - "heredoc"
+      - "break"
+      - "nested shell"
+    expected_commands:
+      - "scp"
+
+  - id: sre-quoting-2
+    should_trigger: true
+    category: quoting
+    prompt: "Run python -c with a complex string via SSH"
+    expected_reasoning_contains:
+      - "python -c"
+      - "quote"
+      - "Pattern B"
+
+  - id: sre-pitfall-1
+    should_trigger: true
+    category: pitfall
+    prompt: "Run this script on Atlas, it needs the requests module"
+    expected_reasoning_contains:
+      - "requests"
+      - "missing"
+      - "urllib.request"
+
+  - id: sre-fallback-1
+    should_trigger: true
+    category: fallback
+    prompt: "SSH python -c failed because the string had dollar signs"
+    expected_reasoning_contains:
+      - "Pattern B"
+      - "write local"
+      - "scp"
+    expected_commands:
+      - "scp"
+      - "ssh"

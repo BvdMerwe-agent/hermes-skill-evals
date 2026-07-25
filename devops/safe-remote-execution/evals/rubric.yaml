@@ -1,0 +1,31 @@
+skill: safe-remote-execution
+version: "1.0.0"
+schema_version: "1.0"
+checks:
+  - id: trigger
+    description: "Skill triggers for SSH/remote execution tasks, does NOT fire for unrelated tasks"
+    weight: 20
+  - id: pattern_a
+    description: "Uses Pattern A (single compact command) for data fetch only"
+    weight: 15
+  - id: pattern_b
+    description: "Uses Pattern B (write local, SCP, execute remote) as default"
+    weight: 20
+  - id: pattern_c
+    description: "Uses Pattern C (Python API client) for complex API work"
+    weight: 10
+  - id: security
+    description: "Never embeds secrets in SSH command strings, avoids shell history exposure"
+    weight: 15
+  - id: quoting
+    description: "Avoids multi-line heredocs and python -c through SSH"
+    weight: 10
+  - id: pitfall
+    description: "Handles requests module missing, dollar signs, nested quotes"
+    weight: 5
+  - id: fallback
+    description: "Falls back to Pattern B when Pattern A would fail"
+    weight: 5
+scoring:
+  pass_threshold: 70
+  excellent_threshold: 90

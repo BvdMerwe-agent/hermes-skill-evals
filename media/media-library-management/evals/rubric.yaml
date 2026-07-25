@@ -1,0 +1,31 @@
+skill: media-library-management
+version: "1.0.0"
+schema_version: "1.0"
+checks:
+  - id: trigger
+    description: "Skill triggers for media download/organize/sync tasks, does NOT fire for unrelated tasks"
+    weight: 20
+  - id: acquisition
+    description: "Downloads media from YouTube/Bandcamp/SoundCloud using yt-dlp"
+    weight: 20
+  - id: library_path
+    description: "Discovers Jellyfin library path via docker inspect"
+    weight: 15
+  - id: playlist_sync
+    description: "Syncs Spotify playlists to Jellyfin by track matching"
+    weight: 15
+  - id: metadata
+    description: "Manages music metadata, tags, and library maintenance"
+    weight: 10
+  - id: yt_dlp_install
+    description: "Installs yt-dlp standalone binary in restricted containers"
+    weight: 10
+  - id: pitfall
+    description: "Handles missing ffmpeg, wrong library paths, track mismatches"
+    weight: 5
+  - id: ffmpeg
+    description: "Uses ffmpeg for audio extraction and re-encoding"
+    weight: 5
+scoring:
+  pass_threshold: 70
+  excellent_threshold: 90

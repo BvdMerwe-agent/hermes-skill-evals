@@ -1,0 +1,28 @@
+skill: atlas-docker-bind-mount-workflow
+version: "1.0.0"
+schema_version: "1.0"
+checks:
+  - id: trigger
+    description: "Skill triggers for Atlas bind-mount edits, does NOT fire for unrelated tasks"
+    weight: 20
+  - id: path_verification
+    description: "Verifies live path via docker inspect before editing"
+    weight: 25
+  - id: stale_copy
+    description: "Recognizes and avoids stale copies in /opt/data/"
+    weight: 20
+  - id: deployment
+    description: "Edits live path and verifies deployment"
+    weight: 15
+  - id: pitfall
+    description: "Knows when restart is needed vs not needed for static files"
+    weight: 10
+  - id: known_projects
+    description: "Knows dashboard and menu-tracker container mappings"
+    weight: 5
+  - id: scp_ssh
+    description: "Uses scp or SSH for file deployment"
+    weight: 5
+scoring:
+  pass_threshold: 70
+  excellent_threshold: 90

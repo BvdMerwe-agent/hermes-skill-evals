@@ -1,0 +1,31 @@
+skill: n8n-workflow-management
+version: "1.0.0"
+schema_version: "1.0"
+checks:
+  - id: trigger
+    description: "Skill triggers for n8n workflow modification tasks, does NOT fire for unrelated tasks"
+    weight: 20
+  - id: json_structure
+    description: "Understands n8n workflow JSON structure: nodes, connections, node names as keys"
+    weight: 20
+  - id: programmatic_edit
+    description: "Modifies workflows programmatically with Python while preserving valid JSON"
+    weight: 20
+  - id: gitlab_api
+    description: "Integrates GitLab REST API calls into n8n workflows"
+    weight: 10
+  - id: orphaned_connections
+    description: "Cleans orphaned node connections after removing nodes"
+    weight: 10
+  - id: batch_modify
+    description: "Supports batch modifications (replace deprecated nodes, update credentials)"
+    weight: 10
+  - id: validation
+    description: "Troubleshoots imported workflow validation failures"
+    weight: 5
+  - id: pitfall
+    description: "Knows connections use node names (not IDs) as keys"
+    weight: 5
+scoring:
+  pass_threshold: 70
+  excellent_threshold: 90

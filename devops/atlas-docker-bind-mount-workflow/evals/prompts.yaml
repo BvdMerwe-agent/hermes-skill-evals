@@ -1,0 +1,139 @@
+prompts:
+  - id: adbm-trigger-pos-1
+    should_trigger: true
+    category: trigger
+    prompt: "Edit the dashboard app.js file on Atlas"
+    expected_reasoning_contains:
+      - "bind mount"
+      - "Atlas"
+
+  - id: adbm-trigger-pos-2
+    should_trigger: true
+    category: trigger
+    prompt: "Deploy my menu-tracker changes to the live site"
+    expected_reasoning_contains:
+      - "menu-tracker"
+      - "live"
+
+  - id: adbm-trigger-pos-3
+    should_trigger: true
+    category: trigger
+    prompt: "Update the CSS for the vdm-dashboard"
+    expected_reasoning_contains:
+      - "dashboard"
+      - "CSS"
+
+  - id: adbm-trigger-neg-1
+    should_trigger: false
+    category: trigger
+    prompt: "Set up a new GitHub repository"
+
+  - id: adbm-trigger-neg-2
+    should_trigger: false
+    category: trigger
+    prompt: "Show me my Home Assistant lights"
+
+  - id: adbm-trigger-neg-3
+    should_trigger: false
+    category: trigger
+    prompt: "Fetch the daily news headlines"
+
+  - id: adbm-path-1
+    should_trigger: true
+    category: path_verification
+    prompt: "I need to edit the dashboard frontend, where do I find the files?"
+    expected_commands:
+      - "docker inspect"
+      - "Mounts"
+      - "Source"
+
+  - id: adbm-path-2
+    should_trigger: true
+    category: path_verification
+    prompt: "Verify the live path for the menu-tracker container"
+    expected_commands:
+      - "docker inspect"
+      - "menu-tracker"
+      - "{{json .Mounts}}"
+
+  - id: adbm-stale-1
+    should_trigger: true
+    category: stale_copy
+    prompt: "I edited files in /opt/data/dashboard/ but changes aren't showing"
+    expected_reasoning_contains:
+      - "stale"
+      - "/opt/data/"
+      - "bind mount"
+
+  - id: adbm-stale-2
+    should_trigger: true
+    category: stale_copy
+    prompt: "The dashboard public folder in /opt/data/ doesn't match what's live"
+    expected_reasoning_contains:
+      - "stale copy"
+      - "/mnt/home/"
+
+  - id: adbm-deploy-1
+    should_trigger: true
+    category: deployment
+    prompt: "Deploy the updated dashboard files to Atlas"
+    expected_commands:
+      - "scp"
+      - "/mnt/home/dashboard-repo/app/public/"
+
+  - id: adbm-deploy-2
+    should_trigger: true
+    category: deployment
+    prompt: "Push my menu-tracker changes live via SSH"
+    expected_commands:
+      - "ssh atlas"
+      - "/mnt/home/menu-tracker/"
+
+  - id: adbm-pitfall-1
+    should_trigger: true
+    category: pitfall
+    prompt: "Do I need to restart the dashboard container after editing static files?"
+    expected_reasoning_contains:
+      - "static files"
+      - "no restart"
+      - "bind mount"
+
+  - id: adbm-pitfall-2
+    should_trigger: true
+    category: pitfall
+    prompt: "I changed a webpack bundle, do I need to rebuild?"
+    expected_reasoning_contains:
+      - "webpack"
+      - "build"
+      - "restart"
+
+  - id: adbm-known-1
+    should_trigger: true
+    category: known_projects
+    prompt: "What's the live path for the vdm-dashboard?"
+    expected_reasoning_contains:
+      - "dashboard"
+      - "/mnt/home/dashboard-repo/app/public/"
+
+  - id: adbm-known-2
+    should_trigger: true
+    category: known_projects
+    prompt: "Which port does the dashboard container use?"
+    expected_reasoning_contains:
+      - "8870"
+
+  - id: adbm-scp-1
+    should_trigger: true
+    category: scp_ssh
+    prompt: "Copy my local app.js to the Atlas dashboard"
+    expected_commands:
+      - "scp"
+      - "atlas:"
+
+  - id: adbm-scp-2
+    should_trigger: true
+    category: scp_ssh
+    prompt: "Upload the new CSS to the live dashboard path"
+    expected_commands:
+      - "ssh atlas"
+      - "cat >"
